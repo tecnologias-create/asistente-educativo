@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asistente educativo</title>
+
+<main>
+  <h1>Asistente educativo</h1>
+  <form id="chat">
+    <label for="pregunta">Escribe tu consulta</label><br>
+    <textarea id="pregunta" rows="4" maxlength="1500" required></textarea><br>
+    <button id="enviar">Consultar</button>
+  </form>
+  <p id="resultado" role="status" style="white-space: pre-wrap"></p>
+</main>
+
+<script>
+  const api = 'https://script.google.com/a/macros/educangol.cl/s/AKfycbzSteumzC6DG1ivzlfQEigXw1e648oS7MxFSK9lS5BuzVzK0BcCga6vOF0MDl3XfJKqLQ/exec';
+  const chat = document.querySelector('#chat');
+  const pregunta = document.querySelector('#pregunta');
+  const resultado = document.querySelector('#resultado');
+  const enviar = document.querySelector('#enviar');
+
+  chat.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    enviar.disabled = true;
+    resultado.textContent = 'Consultando…';
+
+    try {
+      const respuesta = await fetch(api, {
+        method: 'POST',
+        body: JSON.stringify({ pregunta: pregunta.value.trim() })
+      });
+      if (!respuesta.ok) throw new Error('Error de conexión');
+      const datos = await respuesta.json();
+      resultado.textContent = datos.respuesta || datos.error;
+    } catch {
+      resultado.textContent = 'No se pudo conectar. Revisa la URL /exec y los permisos.';
+    } finally {
+      enviar.disabled = false;
+    }
+  });
+</script>
+</html>
